@@ -1,5 +1,4 @@
 import math
-import random
 import sys
 from typing import Literal
 
@@ -91,11 +90,11 @@ class Limiter(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
 
         if self.parameters["should_apply"]:
-            attack_seconds = random.uniform(self.min_attack, self.max_attack)
+            attack_seconds = self.random.uniform(self.min_attack, self.max_attack)
             self.parameters["attack"] = self.convert_time_to_coefficient(
                 attack_seconds, sample_rate
             )
-            release_seconds = random.uniform(self.min_release, self.max_release)
+            release_seconds = self.random.uniform(self.min_release, self.max_release)
             self.parameters["release"] = self.convert_time_to_coefficient(
                 release_seconds, sample_rate
             )
@@ -107,7 +106,7 @@ class Limiter(BaseWaveformTransform):
                 if self.threshold_mode == "relative_to_signal_peak"
                 else 1.0
             )
-            threshold_db = random.uniform(self.min_threshold_db, self.max_threshold_db)
+            threshold_db = self.random.uniform(self.min_threshold_db, self.max_threshold_db)
 
             self.parameters["threshold"] = float(
                 threshold_factor * convert_decibels_to_amplitude_ratio(threshold_db)

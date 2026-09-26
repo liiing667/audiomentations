@@ -9,6 +9,10 @@ import numpy as np
 from numpy.typing import NDArray
 
 from audiomentations.core.utils import is_waveform_multichannel
+from audiomentations.core.randomness import (
+    LEGACY_GLOBAL_NUMPY_RANDOM,
+    LEGACY_GLOBAL_PYTHON_RANDOM,
+)
 from audiomentations.core.serialization import (
     Serializable,
     SerializableMeta,
@@ -42,6 +46,38 @@ class BaseTransform(Serializable, metaclass=CombinedMeta):
         self.p = p
         self.parameters = {"should_apply": None}
         self.are_parameters_frozen = False
+        self._seed = None
+        # Randomness sources. When unseeded (the default), these delegate to
+        # the global `random` and `numpy.random` states, which preserves the
+        # historical behavior. When a seed is set, they become private
+        # `random.Random` and `numpy.random.Generator` instances instead.
+        self.random = LEGACY_GLOBAL_PYTHON_RANDOM
+        self.rng = LEGACY_GLOBAL_NUMPY_RANDOM
+
+    @property
+    def seed(self):
+        """The seed of this transform, or None if it uses the global RNGs."""
+        return self._seed
+
+    @seed.setter
+    def seed(self, value):
+        self.set_seed(value)
+
+    def set_seed(self, seed):
+        """
+        Set the seed of this transform's private random number generators.
+        Given the same seed, the transform will draw the same sequence of
+        random numbers, independently of other transforms and of the global
+        RNG state. Set to None to revert to using the global RNGs.
+        """
+        self._seed = seed
+        if seed is None:
+            self.random = LEGACY_GLOBAL_PYTHON_RANDOM
+            self.rng = LEGACY_GLOBAL_NUMPY_RANDOM
+        else:
+            self.random = random.Random(seed)
+            self.rng = np.random.default_rng(seed)
+        return self
 
     def __repr__(self) -> str:
         state = self.get_base_init_args()
@@ -139,7 +175,7 @@ class BaseWaveformTransform(BaseTransform):
         return samples
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
-        self.parameters["should_apply"] = random.random() < self.p
+        self.parameters["should_apply"] = self.random.random() < self.p
 
     @classmethod
     def get_class_fullname(cls) -> str:

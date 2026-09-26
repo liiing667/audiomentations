@@ -1,4 +1,3 @@
-import random
 from typing import Literal
 
 import librosa
@@ -57,7 +56,7 @@ class TimeStretch(BaseWaveformTransform):
             If rate > 1, then the signal is sped up.
             If rate < 1, then the signal is slowed down.
             """
-            self.parameters["rate"] = random.uniform(self.min_rate, self.max_rate)
+            self.parameters["rate"] = self.random.uniform(self.min_rate, self.max_rate)
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int

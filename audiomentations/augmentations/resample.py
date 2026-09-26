@@ -1,4 +1,3 @@
-import random
 
 import librosa
 import numpy as np
@@ -34,7 +33,7 @@ class Resample(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["target_sample_rate"] = random.randint(
+            self.parameters["target_sample_rate"] = self.random.randint(
                 self.min_sample_rate, self.max_sample_rate
             )
 

@@ -1,4 +1,3 @@
-import random
 from typing import Literal
 
 import numpy as np
@@ -49,7 +48,7 @@ class Padding(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
             input_length = samples.shape[-1]
-            self.parameters["padding_length"] = random.randint(
+            self.parameters["padding_length"] = self.random.randint(
                 int(round(self.min_fraction * input_length)),
                 int(round(self.max_fraction * input_length)),
             )

@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -38,7 +37,7 @@ class AddGaussianSNR(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
             # Pick SNR in decibel scale
-            snr = random.uniform(self.min_snr_db, self.max_snr_db)
+            snr = self.random.uniform(self.min_snr_db, self.max_snr_db)
 
             clean_rms = calculate_rms(samples)
             noise_rms = calculate_desired_noise_rms(clean_rms=clean_rms, snr=snr)
@@ -49,7 +48,7 @@ class AddGaussianSNR(BaseWaveformTransform):
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int
     ) -> NDArray[np.float32]:
-        noise = np.random.normal(
+        noise = self.rng.normal(
             0.0, self.parameters["noise_std"], size=samples.shape
         ).astype(np.float32)
         return samples + noise

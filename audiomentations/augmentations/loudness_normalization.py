@@ -1,4 +1,3 @@
-import random
 import sys
 
 import numpy as np
@@ -59,7 +58,7 @@ class LoudnessNormalization(BaseWaveformTransform):
                 samples.transpose(), sample_rate
             )
             self.parameters["lufs"] = float(
-                random.uniform(self.min_lufs, self.max_lufs)
+                self.random.uniform(self.min_lufs, self.max_lufs)
             )
 
     def apply(

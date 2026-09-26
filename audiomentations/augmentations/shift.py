@@ -1,4 +1,3 @@
-import random
 from typing import Literal
 
 import numpy as np
@@ -83,11 +82,11 @@ class Shift(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
             if self.shift_unit == "samples":
-                self.parameters["shift_amount"] = random.randint(
+                self.parameters["shift_amount"] = self.random.randint(
                     self.min_shift, self.max_shift
                 )
             else:
-                self.parameters["shift_amount"] = random.uniform(
+                self.parameters["shift_amount"] = self.random.uniform(
                     self.min_shift, self.max_shift
                 )
 

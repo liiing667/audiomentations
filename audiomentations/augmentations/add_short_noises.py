@@ -1,5 +1,4 @@
 import functools
-import random
 import warnings
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -204,35 +203,35 @@ class AddShortNoises(BaseWaveformTransform):
             input_sound_duration = len(samples) / sample_rate
 
             current_time = 0
-            global_offset = random.uniform(
+            global_offset = self.random.uniform(
                 -self.max_time_between_sounds, self.max_time_between_sounds
             )
             current_time += global_offset
             sounds = []
 
-            snr_db = random.uniform(self.min_snr_db, self.max_snr_db)
-            rms_db = random.uniform(
+            snr_db = self.random.uniform(self.min_snr_db, self.max_snr_db)
+            rms_db = self.random.uniform(
                 self.min_absolute_noise_rms_db, self.max_absolute_noise_rms_db
             )
 
             while current_time < input_sound_duration:
-                sound_file_path = random.choice(self.sound_file_paths)
+                sound_file_path = self.random.choice(self.sound_file_paths)
                 sound, _ = self.__load_sound(sound_file_path, sample_rate)
                 sound_duration = len(sound) / sample_rate
 
                 # Ensure that the fade time is not longer than the duration of the sound
                 fade_in_time = min(
                     sound_duration,
-                    random.uniform(self.min_fade_in_time, self.max_fade_in_time),
+                    self.random.uniform(self.min_fade_in_time, self.max_fade_in_time),
                 )
                 fade_out_time = min(
                     sound_duration,
-                    random.uniform(self.min_fade_out_time, self.max_fade_out_time),
+                    self.random.uniform(self.min_fade_out_time, self.max_fade_out_time),
                 )
 
                 if not self.add_all_noises_with_same_level:
-                    snr_db = random.uniform(self.min_snr_db, self.max_snr_db)
-                    rms_db = random.uniform(
+                    snr_db = self.random.uniform(self.min_snr_db, self.max_snr_db)
+                    rms_db = self.random.uniform(
                         self.min_absolute_noise_rms_db, self.max_absolute_noise_rms_db
                     )
 
@@ -250,10 +249,10 @@ class AddShortNoises(BaseWaveformTransform):
 
                 # burst mode - add overlapping sounds
                 while (
-                    random.random() < self.burst_probability
+                    self.random.random() < self.burst_probability
                     and current_time < input_sound_duration
                 ):
-                    pause_factor = random.uniform(
+                    pause_factor = self.random.uniform(
                         self.min_pause_factor_during_burst,
                         self.max_pause_factor_during_burst,
                     )
@@ -263,22 +262,22 @@ class AddShortNoises(BaseWaveformTransform):
                     if current_time >= input_sound_duration:
                         break
 
-                    sound_file_path = random.choice(self.sound_file_paths)
+                    sound_file_path = self.random.choice(self.sound_file_paths)
                     sound, _ = self.__load_sound(sound_file_path, sample_rate)
                     sound_duration = len(sound) / sample_rate
 
                     fade_in_time = min(
                         sound_duration,
-                        random.uniform(self.min_fade_in_time, self.max_fade_in_time),
+                        self.random.uniform(self.min_fade_in_time, self.max_fade_in_time),
                     )
                     fade_out_time = min(
                         sound_duration,
-                        random.uniform(self.min_fade_out_time, self.max_fade_out_time),
+                        self.random.uniform(self.min_fade_out_time, self.max_fade_out_time),
                     )
 
                     if not self.add_all_noises_with_same_level:
-                        snr_db = random.uniform(self.min_snr_db, self.max_snr_db)
-                        rms_db = random.uniform(
+                        snr_db = self.random.uniform(self.min_snr_db, self.max_snr_db)
+                        rms_db = self.random.uniform(
                             self.min_absolute_noise_rms_db,
                             self.max_absolute_noise_rms_db,
                         )
@@ -299,7 +298,7 @@ class AddShortNoises(BaseWaveformTransform):
                 current_time += sound_duration
 
                 # then add a pause
-                pause_duration = random.uniform(
+                pause_duration = self.random.uniform(
                     self.min_time_between_sounds, self.max_time_between_sounds
                 )
                 current_time += pause_duration

@@ -47,6 +47,7 @@ nav:
   - Guides:
       - CPU vs. GPU:  guides/cpu_vs_gpu.md
       - Multichannel audio array shapes: guides/multichannel_audio_array_shapes.md
+      - Reproducibility: guides/reproducibility.md
       - Transform parameters: guides/transform_parameters.md
   - Changelog: changelog.md
   - Alternatives: alternatives.md

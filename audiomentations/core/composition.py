@@ -5,6 +5,11 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
+from audiomentations.core.randomness import (
+    LEGACY_GLOBAL_NUMPY_RANDOM,
+    LEGACY_GLOBAL_PYTHON_RANDOM,
+    derive_seed,
+)
 from audiomentations.core.sampling import WeightedChoiceSampler
 from audiomentations.core.serialization import get_shortest_class_fullname
 from audiomentations.core.utils import format_args
@@ -13,16 +18,68 @@ REPR_INDENT_STEP = 2
 
 
 class BaseCompose:
-    def __init__(self, transforms, p: float = 1.0, shuffle: bool = False):
+    def __init__(
+        self,
+        transforms,
+        p: float = 1.0,
+        shuffle: bool = False,
+        seed: int | None = None,
+    ):
         self.transforms = transforms
         self.p = p
         self.shuffle = shuffle
         self.are_parameters_frozen = False
+        self._seed = None
+        self.random = LEGACY_GLOBAL_PYTHON_RANDOM
+        self.rng = LEGACY_GLOBAL_NUMPY_RANDOM
 
         name_list = []
         for transform in self.transforms:
             name_list.append(type(transform).__name__)
         self.__name__ = "_".join(name_list)
+        if seed is not None:
+            self.set_seed(seed)
+
+    @property
+    def seed(self):
+        """The seed of this composition, or None if it uses the global RNGs."""
+        return self._seed
+
+    @seed.setter
+    def seed(self, value):
+        self.set_seed(value)
+
+    def set_seed(self, seed: int | None):
+        """
+        Set the seed of this composition and propagate a derived, independent
+        seed to each contained transform. Given the same seed, the composition
+        produces fully reproducible results. Each transform gets its own
+        private random number generators, so transforms do not interfere with
+        each other, and adding or removing a transform does not change the
+        random numbers drawn by the remaining transforms. Set to None to
+        revert to using the global RNGs.
+        """
+        self._seed = seed
+        if seed is None:
+            self.random = LEGACY_GLOBAL_PYTHON_RANDOM
+            self.rng = LEGACY_GLOBAL_NUMPY_RANDOM
+        else:
+            self.random = random.Random(
+                derive_seed(seed, "compose", type(self).__name__)
+            )
+            self.rng = np.random.default_rng(
+                derive_seed(seed, "compose_np", type(self).__name__)
+            )
+        name_occurrences: dict[str, int] = {}
+        for transform in self.transforms:
+            transform_name = type(transform).__name__
+            occurrence = name_occurrences.get(transform_name, 0)
+            name_occurrences[transform_name] = occurrence + 1
+            if seed is None:
+                transform.set_seed(None)
+            else:
+                transform.set_seed(derive_seed(seed, transform_name, occurrence))
+        return self
 
     def __call__(self, *args, **kwargs):
         raise NotImplementedError
@@ -116,17 +173,17 @@ class Compose(BaseCompose):
     ```
     """
 
-    def __init__(self, transforms, p=1.0, shuffle=False):
-        super().__init__(transforms, p, shuffle)
+    def __init__(self, transforms, p=1.0, shuffle=False, seed=None):
+        super().__init__(transforms, p, shuffle, seed=seed)
 
     def __call__(self, samples: NDArray[np.float32], sample_rate: int):
         transforms = self.transforms.copy()
-        should_apply = random.random() < self.p
+        should_apply = self.random.random() < self.p
         # TODO: Adhere to self.are_parameters_frozen
         # https://github.com/iver56/audiomentations/issues/135
         if should_apply:
             if self.shuffle:
-                random.shuffle(transforms)
+                self.random.shuffle(transforms)
             for transform in transforms:
                 samples = transform(samples, sample_rate)
 
@@ -170,30 +227,36 @@ class SomeOf(BaseCompose):
     ```
     """
 
-    def __init__(self, num_transforms: int or tuple, transforms, p: float = 1.0):
-        super().__init__(transforms, p)
+    def __init__(
+        self,
+        num_transforms: int or tuple,
+        transforms,
+        p: float = 1.0,
+        seed: int | None = None,
+    ):
+        super().__init__(transforms, p, seed=seed)
         self.transform_indexes = []
         self.num_transforms = num_transforms
         self.should_apply = True
 
     def randomize_parameters(self, *args, **kwargs):
         super().randomize_parameters(*args, **kwargs)
-        self.should_apply = random.random() < self.p
+        self.should_apply = self.random.random() < self.p
         if self.should_apply:
             if type(self.num_transforms) == tuple:
                 if self.num_transforms[1] is None:
-                    num_transforms_to_apply = random.randint(
+                    num_transforms_to_apply = self.random.randint(
                         self.num_transforms[0], len(self.transforms)
                     )
                 else:
-                    num_transforms_to_apply = random.randint(
+                    num_transforms_to_apply = self.random.randint(
                         self.num_transforms[0], self.num_transforms[1]
                     )
             else:
                 num_transforms_to_apply = self.num_transforms
             all_transforms_indexes = list(range(len(self.transforms)))
             self.transform_indexes = sorted(
-                random.sample(all_transforms_indexes, num_transforms_to_apply)
+                self.random.sample(all_transforms_indexes, num_transforms_to_apply)
             )
         return self.transform_indexes
 
@@ -247,8 +310,9 @@ class OneOf(BaseCompose):
         transforms,
         p: float = 1.0,
         weights: Sequence[float] | NDArray | None = None,
+        seed: int | None = None,
     ):
-        super().__init__(transforms, p)
+        super().__init__(transforms, p, seed=seed)
         self.transform_index = 0
         self.should_apply = True
 
@@ -262,9 +326,9 @@ class OneOf(BaseCompose):
 
     def randomize_parameters(self, *args, **kwargs):
         super().randomize_parameters(*args, **kwargs)
-        self.should_apply = random.random() < self.p
+        self.should_apply = self.random.random() < self.p
         if self.should_apply:
-            self.transform_index = self.sampler.sample(size=1)[0]
+            self.transform_index = self.sampler.sample(size=1, rng=self.rng)[0]
 
     def __call__(self, *args, **kwargs):
         if not self.are_parameters_frozen:

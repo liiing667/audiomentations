@@ -130,13 +130,15 @@ class AirAbsorption(BaseWaveformTransform):
 
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
-        self.parameters["temperature"] = 10 * np.random.randint(
-            int(self.min_temperature) // 10, int(self.max_temperature) // 10 + 1
+        self.parameters["temperature"] = 10 * int(
+            self.rng.integers(
+                int(self.min_temperature) // 10, int(self.max_temperature) // 10 + 1
+            )
         )
-        self.parameters["humidity"] = np.random.randint(
-            self.min_humidity, self.max_humidity + 1
+        self.parameters["humidity"] = int(
+            self.rng.integers(self.min_humidity, self.max_humidity + 1)
         )
-        self.parameters["distance"] = np.random.uniform(
+        self.parameters["distance"] = self.rng.uniform(
             self.min_distance, self.max_distance
         )
 

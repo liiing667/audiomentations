@@ -1,4 +1,3 @@
-import random
 import warnings
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -106,11 +105,11 @@ class AddBackgroundNoise(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
 
         if self.parameters["should_apply"]:
-            self.parameters["snr_db"] = random.uniform(self.min_snr_db, self.max_snr_db)
-            self.parameters["rms_db"] = random.uniform(
+            self.parameters["snr_db"] = self.random.uniform(self.min_snr_db, self.max_snr_db)
+            self.parameters["rms_db"] = self.random.uniform(
                 self.min_absolute_rms_db, self.max_absolute_rms_db
             )
-            file_idx = random.randint(0, len(self.sound_file_paths) - 1)
+            file_idx = self.random.randint(0, len(self.sound_file_paths) - 1)
             self.parameters["noise_file_path"] = self.sound_file_paths[file_idx]
 
             if self.time_info_arr[file_idx] == -1.0:
@@ -124,7 +123,7 @@ class AddBackgroundNoise(BaseWaveformTransform):
             min_noise_offset = 0.0
             max_noise_offset = max(0.0, noise_duration - signal_duration)
 
-            self.parameters["offset"] = random.uniform(
+            self.parameters["offset"] = self.random.uniform(
                 min_noise_offset, max_noise_offset
             )
             self.parameters["duration"] = signal_duration

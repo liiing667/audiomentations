@@ -1,7 +1,6 @@
 from typing import Literal
 
 import python_stretch
-import random
 import warnings
 
 import librosa
@@ -52,7 +51,7 @@ class PitchShift(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["num_semitones"] = random.uniform(
+            self.parameters["num_semitones"] = self.random.uniform(
                 self.min_semitones, self.max_semitones
             )
 

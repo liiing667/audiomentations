@@ -60,17 +60,29 @@ class WeightedChoiceSampler:
             self._uniform = False
             self.num_items = weights.size
 
-    def sample(self, size: int = 1) -> NDArray[np.int32] | NDArray[np.int64]:
+    def sample(
+        self, size: int = 1, rng=None
+    ) -> NDArray[np.int32] | NDArray[np.int64]:
         """
         Draw `size` indices according to the stored weight distribution.
+
+        If `rng` (a numpy randomness source, e.g. np.random.Generator) is
+        given, the numbers are drawn from it. Otherwise the legacy global
+        numpy random state is used.
         """
         if size < 1:
             raise ValueError("size must be a positive int")
 
+        if rng is None:
+            rng = np.random
+            integers = rng.randint
+        else:
+            integers = rng.integers
+
         if self._uniform:
             # O(1) per sample
-            return np.random.randint(self.num_items, size=size)
+            return integers(self.num_items, size=size)
         else:
             # O(log n) per sample
-            random_vals = np.random.random(size)
+            random_vals = rng.random(size)
             return np.searchsorted(self.cdf, random_vals, side="right")
