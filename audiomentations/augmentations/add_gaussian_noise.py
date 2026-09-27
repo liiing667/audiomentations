@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -28,11 +27,11 @@ class AddGaussianNoise(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["amplitude"] = random.uniform(
+            self.parameters["amplitude"] = self.random.uniform(
                 self.min_amplitude, self.max_amplitude
             )
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
-        noise = np.random.randn(*samples.shape).astype(np.float32)
+        noise = self.rng.standard_normal(samples.shape).astype(np.float32)
         samples = samples + self.parameters["amplitude"] * noise
         return samples

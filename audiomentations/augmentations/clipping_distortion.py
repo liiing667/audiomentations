@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -39,7 +38,7 @@ class ClippingDistortion(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["percentile_threshold"] = random.randint(
+            self.parameters["percentile_threshold"] = self.random.randint(
                 self.min_percentile_threshold, self.max_percentile_threshold
             )
 

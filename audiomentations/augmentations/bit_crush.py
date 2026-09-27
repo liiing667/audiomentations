@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -38,7 +37,7 @@ class BitCrush(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["bit_depth"] = random.randint(
+            self.parameters["bit_depth"] = self.random.randint(
                 self.min_bit_depth, self.max_bit_depth
             )
 

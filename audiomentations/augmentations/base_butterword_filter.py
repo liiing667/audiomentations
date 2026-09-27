@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -153,28 +152,28 @@ class BaseButterworthFilter(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int = None):
         super().randomize_parameters(samples, sample_rate)
         if self.zero_phase:
-            random_order = random.randint(
+            random_order = self.random.randint(
                 self.min_rolloff // 12, self.max_rolloff // 12
             )
             self.parameters["rolloff"] = random_order * 12
         else:
-            random_order = random.randint(self.min_rolloff // 6, self.max_rolloff // 6)
+            random_order = self.random.randint(self.min_rolloff // 6, self.max_rolloff // 6)
             self.parameters["rolloff"] = random_order * 6
 
         if self.filter_type in BaseButterworthFilter.ALLOWED_ONE_SIDE_FILTER_TYPES:
-            cutoff_mel = np.random.uniform(
+            cutoff_mel = self.rng.uniform(
                 low=convert_frequency_to_mel(self.min_cutoff_freq),
                 high=convert_frequency_to_mel(self.max_cutoff_freq),
             )
             self.parameters["cutoff_freq"] = convert_mel_to_frequency(cutoff_mel)
         elif self.filter_type in BaseButterworthFilter.ALLOWED_TWO_SIDE_FILTER_TYPES:
-            center_mel = np.random.uniform(
+            center_mel = self.rng.uniform(
                 low=convert_frequency_to_mel(self.min_center_freq),
                 high=convert_frequency_to_mel(self.max_center_freq),
             )
             self.parameters["center_freq"] = convert_mel_to_frequency(center_mel)
 
-            bandwidth_fraction = np.random.uniform(
+            bandwidth_fraction = self.rng.uniform(
                 low=self.min_bandwidth_fraction, high=self.max_bandwidth_fraction
             )
             self.parameters["bandwidth"] = (

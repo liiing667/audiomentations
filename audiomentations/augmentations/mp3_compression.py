@@ -1,5 +1,4 @@
 import os
-import random
 import tempfile
 import uuid
 import warnings
@@ -159,7 +158,7 @@ class Mp3Compression(BaseWaveformTransform):
                 for bitrate in self.SUPPORTED_BITRATES
                 if self.min_bitrate <= bitrate <= self.max_bitrate
             ]
-            self.parameters["bitrate"] = random.choice(bitrate_choices)
+            self.parameters["bitrate"] = self.random.choice(bitrate_choices)
 
     def apply(
         self, samples: NDArray[np.float32], sample_rate: int

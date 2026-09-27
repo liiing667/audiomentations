@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -107,13 +106,13 @@ class LowShelfFilter(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
 
-        center_mel = np.random.uniform(
+        center_mel = self.rng.uniform(
             low=convert_frequency_to_mel(self.min_center_freq),
             high=convert_frequency_to_mel(self.max_center_freq),
         )
         self.parameters["center_freq"] = convert_mel_to_frequency(center_mel)
-        self.parameters["gain_db"] = random.uniform(self.min_gain_db, self.max_gain_db)
-        self.parameters["q_factor"] = random.uniform(self.min_q, self.max_q)
+        self.parameters["gain_db"] = self.random.uniform(self.min_gain_db, self.max_gain_db)
+        self.parameters["q_factor"] = self.random.uniform(self.min_q, self.max_q)
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
         nyquist_freq = sample_rate // 2

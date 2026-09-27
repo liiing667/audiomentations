@@ -1,4 +1,3 @@
-import random
 import numpy as np
 from typing import Literal
 from numpy.typing import NDArray
@@ -88,7 +87,7 @@ class TimeMask(BaseWaveformTransform):
         num_samples = samples.shape[-1]
 
         # Mask length
-        t = random.randint(
+        t = self.random.randint(
             int(num_samples * self.min_band_part),
             int(num_samples * self.max_band_part),
         )
@@ -100,7 +99,7 @@ class TimeMask(BaseWaveformTransform):
         elif loc == "end":
             t0 = num_samples - t
         else:  # "random"
-            t0 = random.randint(0, num_samples - t)
+            t0 = self.random.randint(0, num_samples - t)
 
         self.parameters.update({"t": t, "t0": t0})
 

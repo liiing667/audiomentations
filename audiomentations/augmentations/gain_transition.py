@@ -1,4 +1,3 @@
-import random
 from typing import Literal
 
 import numpy as np
@@ -101,16 +100,16 @@ class GainTransition(BaseWaveformTransform):
                 raise ValueError("Invalid duration_unit")
 
             self.parameters["fade_time_samples"] = max(
-                3, random.randint(min_duration_in_samples, max_duration_in_samples)
+                3, self.random.randint(min_duration_in_samples, max_duration_in_samples)
             )
-            self.parameters["t0"] = random.randint(
+            self.parameters["t0"] = self.random.randint(
                 -self.parameters["fade_time_samples"] + 2,
                 samples.shape[-1] - 2,
                 )
-            self.parameters["start_gain_db"] = random.uniform(
+            self.parameters["start_gain_db"] = self.random.uniform(
                 self.min_gain_db, self.max_gain_db
             )
-            self.parameters["end_gain_db"] = random.uniform(
+            self.parameters["end_gain_db"] = self.random.uniform(
                 self.min_gain_db, self.max_gain_db
             )
 

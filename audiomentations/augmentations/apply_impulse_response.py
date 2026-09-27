@@ -1,6 +1,5 @@
 import functools
 import itertools
-import random
 import warnings
 from collections.abc import Sequence
 from pathlib import Path
@@ -55,7 +54,7 @@ class ApplyImpulseResponse(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["ir_file_path"] = random.choice(self.ir_files)
+            self.parameters["ir_file_path"] = self.random.choice(self.ir_files)
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:
         # Determine if the impulse response should be loaded as mono

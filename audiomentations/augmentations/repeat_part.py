@@ -1,4 +1,3 @@
-import random
 import warnings
 from collections.abc import Callable
 from typing import Literal
@@ -121,7 +120,7 @@ class RepeatPart(BaseWaveformTransform):
     def randomize_parameters(self, samples: NDArray[np.float32], sample_rate: int):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
-            self.parameters["part_num_samples"] = random.randint(
+            self.parameters["part_num_samples"] = self.random.randint(
                 int(self.min_part_duration * sample_rate),
                 int(self.max_part_duration * sample_rate),
             )
@@ -141,11 +140,11 @@ class RepeatPart(BaseWaveformTransform):
                 self.parameters["should_apply"] = False
                 return
 
-            self.parameters["part_start_index"] = random.randint(
+            self.parameters["part_start_index"] = self.random.randint(
                 half_crossfade_length,
                 samples.shape[-1] - self.parameters["part_num_samples"],
             )
-            self.parameters["repeats"] = random.randint(
+            self.parameters["repeats"] = self.random.randint(
                 self.min_repeats, self.max_repeats
             )
 

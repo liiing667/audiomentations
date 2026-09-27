@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 import scipy.signal as sp
@@ -41,6 +40,7 @@ def generate_decaying_white_noise(
     apply_a_weighting=False,
     n_fft=64,
     in_db_per_octave=True,
+    rng=None,
 ):
     """
     Generates a white noise signal decaying linearly by 1/f^beta
@@ -63,7 +63,10 @@ def generate_decaying_white_noise(
     if you are not using a_weighting, but keep it higher otherwise.
     """
 
-    sig = np.random.normal(0, 1, size=size)
+    if rng is None:
+        rng = np.random
+
+    sig = rng.normal(0, 1, size=size)
 
     if beta == 0.0 and not apply_a_weighting:
         # No decay, return white noise
@@ -81,7 +84,7 @@ def generate_decaying_white_noise(
 
     # Decay is in PSD, for magnitude, take sqrt and add random phase
     decay = np.sqrt(1 / f**beta) * np.exp(
-        1j * np.random.uniform(0, 2 * np.pi, len(decay))
+        1j * rng.uniform(0, 2 * np.pi, len(decay))
     )
 
     # Optionally apply a-weighting
@@ -173,13 +176,13 @@ class AddColorNoise(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
             # Pick SNR in Decibel scale
-            snr = random.uniform(self.min_snr_db, self.max_snr_db)
+            snr = self.random.uniform(self.min_snr_db, self.max_snr_db)
 
             # Pick f_decay
-            f_decay = random.uniform(self.min_f_decay, self.max_f_decay)
+            f_decay = self.random.uniform(self.min_f_decay, self.max_f_decay)
 
             # Pick whether to apply A-weighting
-            apply_a_weighting = random.random() < self.p_apply_a_weighting
+            apply_a_weighting = self.random.random() < self.p_apply_a_weighting
 
             # Calculate desired noise rms
             clean_rms = calculate_rms(samples)
@@ -208,6 +211,7 @@ class AddColorNoise(BaseWaveformTransform):
             sample_rate=sample_rate,
             apply_a_weighting=self.parameters["apply_a_weighting"],
             n_fft=self.n_fft,
+            rng=self.rng,
         )
 
         if n_channels > 1:

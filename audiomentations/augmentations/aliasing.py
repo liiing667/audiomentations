@@ -1,4 +1,3 @@
-import random
 
 import numpy as np
 from numpy.typing import NDArray
@@ -43,7 +42,7 @@ class Aliasing(BaseWaveformTransform):
         super().randomize_parameters(samples, sample_rate)
         if self.parameters["should_apply"]:
             self.parameters["new_sample_rate"] = convert_mel_to_frequency(
-                random.uniform(self.min_mel, self.max_mel)
+                self.random.uniform(self.min_mel, self.max_mel)
             )
 
     def apply(self, samples: NDArray[np.float32], sample_rate: int) -> NDArray[np.float32]:

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+* Add optional `seed` parameter to `Compose`, `SomeOf` and `OneOf`, and `set_seed`/`seed` on all transforms and compositions, for fully reproducible augmentation. When a composition is seeded, each transform gets its own private, derived random number generators, so transforms do not interfere with each other, results are independent of the global `random`/`numpy.random` state, and adding or removing a transform does not change the random numbers drawn by the remaining transforms. When no seed is given (the default), behavior is unchanged: randomness is still drawn from the global `random` and `numpy.random` states.
+
 ## [0.43.1] - 2025-09-13
 
 ### Fixed

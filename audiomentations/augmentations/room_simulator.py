@@ -1,4 +1,3 @@
-import random
 import sys
 from typing import Literal
 
@@ -206,9 +205,9 @@ class RoomSimulator(BaseWaveformTransform):
         if not self.parameters["should_apply"]:
             return
 
-        self.parameters["size_x"] = random.uniform(self.min_size_x, self.max_size_x)
-        self.parameters["size_y"] = random.uniform(self.min_size_y, self.max_size_y)
-        self.parameters["size_z"] = random.uniform(self.min_size_z, self.max_size_z)
+        self.parameters["size_x"] = self.random.uniform(self.min_size_x, self.max_size_x)
+        self.parameters["size_y"] = self.random.uniform(self.min_size_y, self.max_size_y)
+        self.parameters["size_z"] = self.random.uniform(self.min_size_z, self.max_size_z)
 
         room_dim = np.array(
             [
@@ -221,7 +220,7 @@ class RoomSimulator(BaseWaveformTransform):
         self.parameters["max_order"] = self.max_order
 
         if self.calculation_mode == "rt60":
-            target_rt60 = random.uniform(self.min_target_rt60, self.max_target_rt60)
+            target_rt60 = self.random.uniform(self.min_target_rt60, self.max_target_rt60)
             self.parameters["target_rt60"] = target_rt60
 
             # If we are in rt60 mode, estimate the absorption coefficient on a desired target
@@ -233,30 +232,30 @@ class RoomSimulator(BaseWaveformTransform):
             # When `rt60` is specified, use max_order from sabine's formula
             self.parameters["max_order"] = min(max_order,self.max_order)
         else:
-            self.parameters["absorption_coefficient"] = random.uniform(
+            self.parameters["absorption_coefficient"] = self.random.uniform(
                 self.min_absorption_value, self.max_absorption_value
             )
 
-        self.parameters["source_x"] = random.uniform(
+        self.parameters["source_x"] = self.random.uniform(
             max(self.min_source_x, self.padding),
             min(self.max_source_x, self.parameters["size_x"] - self.padding),
         )
-        self.parameters["source_y"] = random.uniform(
+        self.parameters["source_y"] = self.random.uniform(
             max(self.min_source_y, self.padding),
             min(self.max_source_y, self.parameters["size_y"] - self.padding),
         )
-        self.parameters["source_z"] = random.uniform(
+        self.parameters["source_z"] = self.random.uniform(
             max(self.min_source_z, self.padding),
             min(self.max_source_z, self.parameters["size_z"] - self.padding),
         )
 
-        self.parameters["mic_radius"] = random.uniform(
+        self.parameters["mic_radius"] = self.random.uniform(
             self.min_mic_distance, self.max_mic_distance
         )
-        self.parameters["mic_azimuth"] = random.uniform(
+        self.parameters["mic_azimuth"] = self.random.uniform(
             self.min_mic_azimuth, self.max_mic_azimuth
         )
-        self.parameters["mic_elevation"] = random.uniform(
+        self.parameters["mic_elevation"] = self.random.uniform(
             self.min_mic_elevation, self.max_mic_elevation
         )
 
